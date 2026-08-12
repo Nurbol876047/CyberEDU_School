@@ -513,40 +513,141 @@ document.addEventListener('DOMContentLoaded', () => {
         const isFinished = parseInt(currentProgress) >= 80;
         
         contentArea.innerHTML = `
-            <div class="task-container" style="text-align: left; max-width: 800px; margin: 0 auto;">
-                <h2>Баланың үлгерімі және қауіпсіздік баптаулары</h2>
-                <p>Бұл панель балаңыздың немесе оқушыңыздың нәтижелерін бақылауға арналған.</p>
-                
-                <div style="display: flex; gap: 20px; margin-top: 30px; flex-wrap: wrap;">
-                    <!-- Progress Widget -->
-                    <div style="flex: 1; min-width: 250px; background: rgba(255,255,255,0.05); padding: 20px; border-radius: 12px; border: 1px solid var(--card-border);">
-                        <h3>📊 Жалпы үлгерім</h3>
-                        <div style="font-size: 48px; font-weight: bold; color: var(--accent-cyan);" id="dash-progress">${currentProgress}</div>
-                        <p>Платформадағы 6 негізгі модульді өту деңгейі.</p>
-                    </div>
-                    
-                    <!-- Certificate Widget -->
-                    <div style="flex: 1; min-width: 250px; background: rgba(255,255,255,0.05); padding: 20px; border-radius: 12px; border: 1px solid var(--card-border);">
-                        <h3>🏆 Сертификат</h3>
-                        <p>Барлық модульдерден сәтті өткеннен кейін жүктеп алуға болады.</p>
-                        <button class="btn btn-primary" id="cert-btn" ${isFinished ? '' : 'disabled'}>Сертификатты жүктеу</button>
-                        ${!isFinished ? '<p style="font-size: 12px; color: #ff4d4d; margin-top: 10px;">Әлі модульдер толық орындалмаған.</p>' : ''}
-                    </div>
+            <style>
+                @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+            </style>
+            <div class="dashboard-wrapper" style="display: flex; gap: 30px; max-width: 1100px; margin: 0 auto; color: var(--text-primary); flex-wrap: wrap; padding-bottom: 40px;">
+                <!-- Sidebar -->
+                <div style="flex: 0 0 260px; background: rgba(255,255,255,0.03); border: 1px solid var(--card-border); border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 10px; height: max-content;">
+                    <button class="dash-tab active" data-tab="tab-progress" style="text-align: left; padding: 15px 20px; border-radius: 12px; border: none; background: var(--accent-cyan); color: var(--bg-start); font-weight: bold; cursor: pointer; transition: 0.3s; font-size: 16px;">📊 Үлгерім</button>
+                    <button class="dash-tab" data-tab="tab-guides" style="text-align: left; padding: 15px 20px; border-radius: 12px; border: none; background: transparent; color: var(--text-primary); font-weight: 500; cursor: pointer; transition: 0.3s; font-size: 16px;">📚 Кеңестер мен мысалдар</button>
+                    <button class="dash-tab" data-tab="tab-settings" style="text-align: left; padding: 15px 20px; border-radius: 12px; border: none; background: transparent; color: var(--text-primary); font-weight: 500; cursor: pointer; transition: 0.3s; font-size: 16px;">⚙️ Баптаулар</button>
                 </div>
+                
+                <!-- Content Area -->
+                <div style="flex: 1; min-width: 300px; background: rgba(255,255,255,0.03); border: 1px solid var(--card-border); border-radius: 16px; padding: 40px; text-align: left; position: relative;">
+                    
+                    <!-- Tab 1: Progress -->
+                    <div id="tab-progress" class="dash-content" style="display: block; animation: fadeIn 0.5s ease;">
+                        <h2 style="font-size: 32px; margin-bottom: 10px; font-weight: 800;">Жалпы үлгерім панелі</h2>
+                        <p style="color: var(--text-secondary); margin-bottom: 30px; font-size: 16px;">Оқушының платформадағы белсенділігі мен нәтижелері.</p>
+                        
+                        <div style="display: flex; gap: 20px; margin-bottom: 40px; flex-wrap: wrap;">
+                            <div style="flex: 1; min-width: 200px; background: rgba(0,255,237,0.08); border: 1px solid var(--accent-cyan); padding: 30px; border-radius: 16px; display: flex; flex-direction: column; justify-content: center; align-items: center; box-shadow: 0 0 30px rgba(0,255,237,0.1);">
+                                <div style="font-size: 54px; font-weight: 900; color: var(--accent-cyan); line-height: 1;">${currentProgress}</div>
+                                <div style="font-size: 16px; font-weight: 500; margin-top: 10px; color: var(--text-primary);">Жалпы өту деңгейі</div>
+                            </div>
+                            <div style="flex: 1; min-width: 200px; background: rgba(255,217,0,0.08); border: 1px solid var(--accent-yellow); padding: 30px; border-radius: 16px; display: flex; flex-direction: column; justify-content: center; align-items: center; box-shadow: 0 0 30px rgba(255,217,0,0.1);">
+                                <div style="font-size: 54px; font-weight: 900; color: var(--accent-yellow); line-height: 1;">6</div>
+                                <div style="font-size: 16px; font-weight: 500; margin-top: 10px; color: var(--text-primary);">Барлық модульдер</div>
+                            </div>
+                        </div>
+                        
+                        <h3 style="font-size: 22px; margin-bottom: 20px; border-bottom: 1px solid var(--card-border); padding-bottom: 15px;">Модульдер тізімі</h3>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px;">
+                            ${[
+                                {title: 'Сенімді құпия сөз', status: 'Аяқталды ✅', color: 'var(--accent-cyan)'},
+                                {title: 'Жеке деректер', status: 'Процесте ⏳', color: 'var(--accent-yellow)'},
+                                {title: 'Кибербуллинг', status: 'Жабық 🔒', color: '#666'},
+                                {title: 'Алаяқтық', status: 'Жабық 🔒', color: '#666'},
+                                {title: 'Фейктер', status: 'Жабық 🔒', color: '#666'},
+                                {title: 'Экран уақыты', status: 'Жабық 🔒', color: '#666'}
+                            ].map(m => `
+                                <div style="background: rgba(255,255,255,0.02); padding: 18px 20px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(255,255,255,0.05);">
+                                    <span style="font-weight: 500; font-size: 15px;">${m.title}</span>
+                                    <span style="color: ${isFinished ? 'var(--accent-cyan)' : m.color}; font-size: 12px; font-weight: bold; background: rgba(0,0,0,0.4); padding: 6px 10px; border-radius: 20px;">${isFinished ? 'Аяқталды ✅' : m.status}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
 
-                <div style="margin-top: 30px; background: rgba(255,255,255,0.05); padding: 20px; border-radius: 12px; border: 1px solid var(--card-border);">
-                    <h3>💡 Ата-аналарға арналған 3 алтын ереже</h3>
-                    <ul style="line-height: 1.8; font-size: 16px; margin-top: 15px; padding-left: 20px;">
-                        <li style="margin-bottom: 10px;"><strong>Сенімді қарым-қатынас:</strong> Балаңызға интернеттегі кез келген қауіп немесе қорқынышты жағдай туралы ұрыспай, ашық айтуға болатынын түсіндіріңіз.</li>
-                        <li style="margin-bottom: 10px;"><strong>Ата-ана бақылауы (Parental Control):</strong> Құрылғыларда жас шектеулерін орнатыңыз (Google Family Link, Screen Time).</li>
-                        <li><strong>Жеке үлгі:</strong> Телефонды дастархан басында немесе ұйықтар алдында өзіңіз де қолданбаңыз. Бала сөзден емес, істен үйренеді.</li>
-                    </ul>
+                    <!-- Tab 2: Guides -->
+                    <div id="tab-guides" class="dash-content" style="display: none; animation: fadeIn 0.5s ease;">
+                        <h2 style="font-size: 32px; margin-bottom: 10px; font-weight: 800;">Ата-аналарға арналған кеңестер</h2>
+                        <p style="color: var(--text-secondary); margin-bottom: 35px; font-size: 16px;">Визуалды нұсқаулықтар мен қауіпсіздік шаралары.</p>
+                        
+                        <div style="display: flex; flex-direction: column; gap: 35px;">
+                            <!-- Guide 1 -->
+                            <div style="display: flex; gap: 30px; align-items: center; background: rgba(0,0,0,0.2); padding: 30px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.05); flex-wrap: wrap;">
+                                <img src="assets/parental_control.png" style="width: 220px; height: 220px; object-fit: cover; border-radius: 16px; box-shadow: 0 0 30px rgba(0,255,237,0.15);" alt="Parental Control">
+                                <div style="flex: 1; min-width: 250px;">
+                                    <h3 style="color: var(--accent-cyan); margin: 0 0 15px 0; font-size: 24px;">Ата-ана бақылауы (Parental Control)</h3>
+                                    <p style="font-size: 15px; line-height: 1.7; color: var(--text-secondary); margin-bottom: 20px;">Google Family Link немесе iOS Screen Time орнату арқылы баланың құрылғысындағы қауіпті қосымшаларды бұғаттаңыз және экран алдында өткізетін уақытын шектеңіз.</p>
+                                    <div style="display: flex; gap: 12px;">
+                                        <span style="background: rgba(0,255,237,0.1); color: var(--accent-cyan); padding: 6px 12px; border-radius: 8px; font-size: 13px; font-weight: bold;">Уақыт шектеу</span>
+                                        <span style="background: rgba(0,255,237,0.1); color: var(--accent-cyan); padding: 6px 12px; border-radius: 8px; font-size: 13px; font-weight: bold;">Бұғаттау</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Guide 2 -->
+                            <div style="display: flex; gap: 30px; align-items: center; background: rgba(0,0,0,0.2); padding: 30px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.05); flex-wrap: wrap-reverse;">
+                                <div style="flex: 1; min-width: 250px;">
+                                    <h3 style="color: var(--accent-purple); margin: 0 0 15px 0; font-size: 24px;">Сенімді қарым-қатынас орнату</h3>
+                                    <p style="font-size: 15px; line-height: 1.7; color: var(--text-secondary); margin-bottom: 20px;">Желіде қауіп төнгенде (кибербуллинг немесе алаяқтар) бала ең бірінші сізге айтуы керек. Бұл үшін ұрыспай, оларды қолдап, ашық сөйлесуді әдетке айналдырыңыз.</p>
+                                    <div style="display: flex; gap: 12px;">
+                                        <span style="background: rgba(139,92,246,0.1); color: var(--accent-purple); padding: 6px 12px; border-radius: 8px; font-size: 13px; font-weight: bold;">Психология</span>
+                                        <span style="background: rgba(139,92,246,0.1); color: var(--accent-purple); padding: 6px 12px; border-radius: 8px; font-size: 13px; font-weight: bold;">Қолдау</span>
+                                    </div>
+                                </div>
+                                <img src="assets/family.png" style="width: 220px; height: 220px; object-fit: cover; border-radius: 16px; box-shadow: 0 0 30px rgba(139,92,246,0.15);" alt="Family Cybersecurity">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tab 3: Settings -->
+                    <div id="tab-settings" class="dash-content" style="display: none; animation: fadeIn 0.5s ease;">
+                        <h2 style="font-size: 32px; margin-bottom: 10px; font-weight: 800;">Баптаулар</h2>
+                        <p style="color: var(--text-secondary); margin-bottom: 35px; font-size: 16px;">Платформаның жұмыс істеу режимін реттеңіз.</p>
+                        
+                        <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--card-border); padding: 30px; border-radius: 16px; margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 5px 15px rgba(0,0,0,0.2);">
+                            <div>
+                                <h3 style="margin: 0; font-size: 20px;">Апталық есеп алу</h3>
+                                <p style="font-size: 15px; color: var(--text-secondary); margin: 8px 0 0 0;">Оқушының үлгерімі туралы e-mail немесе Telegram-ға есеп жіберу</p>
+                            </div>
+                            <label style="position: relative; display: inline-block; width: 66px; height: 38px;">
+                                <input type="checkbox" style="opacity: 0; width: 0; height: 0;" checked>
+                                <span style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--accent-cyan); border-radius: 38px; transition: .4s;">
+                                    <span style="position: absolute; height: 30px; width: 30px; left: 4px; bottom: 4px; background-color: white; border-radius: 50%; transition: .4s; transform: translateX(28px);"></span>
+                                </span>
+                            </label>
+                        </div>
+                        
+                        <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--card-border); padding: 30px; border-radius: 16px; margin-bottom: 25px; box-shadow: 0 5px 15px rgba(0,0,0,0.2);">
+                            <h3 style="margin: 0 0 12px 0; font-size: 20px;">Марапаттау сертификаты</h3>
+                            <p style="font-size: 15px; color: var(--text-secondary); margin-bottom: 25px;">Барлық 6 модульден сәтті өткен жағдайда, марапаттау сертификатын жүктеп алуға болады.</p>
+                            <button class="btn btn-primary" id="cert-btn-new" ${isFinished ? '' : 'disabled'}>Сертификатты жүктеу</button>
+                            ${!isFinished ? '<p style="font-size: 14px; color: #ff4d4d; margin-top: 15px; font-weight: 500;">Бұғатталған: Әлі барлық модульдер толық орындалмаған.</p>' : ''}
+                        </div>
+                    </div>
                 </div>
             </div>
         `;
 
+        const tabs = contentArea.querySelectorAll('.dash-tab');
+        const contents = contentArea.querySelectorAll('.dash-content');
+        
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                tabs.forEach(t => {
+                    t.classList.remove('active');
+                    t.style.background = 'transparent';
+                    t.style.color = 'var(--text-primary)';
+                });
+                
+                contents.forEach(c => c.style.display = 'none');
+                
+                tab.classList.add('active');
+                tab.style.background = 'var(--accent-cyan)';
+                tab.style.color = 'var(--bg-start)';
+                
+                const targetId = tab.getAttribute('data-tab');
+                document.getElementById(targetId).style.display = 'block';
+            });
+        });
+
         if (isFinished) {
-            document.getElementById('cert-btn').addEventListener('click', () => {
+            document.getElementById('cert-btn-new').addEventListener('click', () => {
                 alert('Құттықтаймыз! Сертификат жүктелуде... (Демо нұсқа)');
             });
         }
