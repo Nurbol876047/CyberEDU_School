@@ -488,12 +488,14 @@ document.addEventListener('DOMContentLoaded', () => {
     backBtn.addEventListener('click', () => {
         moduleView.classList.add('hidden');
         mainContent.classList.remove('hidden');
+        moduleView.style.maxWidth = '';
     });
 
     function openModule(id) {
         currentModuleId = id;
         moduleTitleDisplay.textContent = modulesData[id].title;
         stageIndicator.style.display = '';
+        moduleView.style.maxWidth = ''; // Reset for normal modules
         mainContent.classList.add('hidden');
         moduleView.classList.remove('hidden');
         currentStage = 1;
@@ -508,6 +510,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         moduleTitleDisplay.textContent = 'Ата-аналар мен мұғалімдерге';
         stageIndicator.style.display = 'none';
+        moduleView.style.maxWidth = '1200px';
         
         const currentProgress = document.getElementById('main-progress-text').textContent || '0%';
         const isFinished = parseInt(currentProgress) >= 80;
