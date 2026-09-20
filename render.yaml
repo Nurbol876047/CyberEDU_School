@@ -1,0 +1,15 @@
+# Render: Web Service (Node), не Static Site — нужен сервер для /api/gemini
+services:
+  - type: web
+    name: cyberedu-school
+    runtime: node
+    plan: free
+    buildCommand: npm ci && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_VERSION
+        value: 20
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: GEMINI_MODEL
+        value: gemini-2.5-flash
