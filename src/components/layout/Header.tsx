@@ -11,7 +11,6 @@ import { cn } from "@/lib/utils";
 const NAV = [
   { href: "/#modules", label: "Модули" },
   { href: "/map", label: "3D-карта" },
-  { href: "/#faq", label: "Вопросы" },
   { href: "/parents", label: "Родителям" },
 ];
 

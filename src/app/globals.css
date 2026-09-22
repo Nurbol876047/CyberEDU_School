@@ -82,3 +82,45 @@ h1, h2, h3, .font-heading { font-family: var(--font-montserrat), var(--font-rubi
 
 ::-webkit-scrollbar { width: 8px; }
 ::-webkit-scrollbar-thumb { background: var(--card-border); border-radius: 8px; }
+
+/* KazCyberMap — attack arcs / bursts (see components/hero/KazCyberMap.tsx) */
+.kz-arc {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: kz-draw var(--arc-ms) cubic-bezier(0.4, 0, 0.2, 1) forwards, kz-fade 700ms ease-in calc(var(--arc-ms) + 500ms) forwards;
+}
+.kz-src {
+  animation: kz-fade 600ms ease-out 300ms forwards;
+}
+.kz-burst {
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: kz-burst 900ms ease-out var(--arc-ms) forwards;
+}
+.kz-burst-2 {
+  animation-delay: calc(var(--arc-ms) + 150ms);
+}
+.kz-pulse {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: kz-pulse 3s ease-in-out infinite;
+}
+@keyframes kz-draw {
+  to { stroke-dashoffset: 0; }
+}
+@keyframes kz-fade {
+  to { opacity: 0; }
+}
+@keyframes kz-burst {
+  0% { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(5); }
+}
+@keyframes kz-pulse {
+  0%, 100% { transform: scale(1); opacity: 0.6; }
+  50% { transform: scale(1.6); opacity: 0.15; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .kz-pulse { animation: none; }
+}
+      

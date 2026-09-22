@@ -1,17 +1,16 @@
 "use client";
 import Link from "next/link";
-import Image from "next/image";
-import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import dynamic from "next/dynamic";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { MODULES } from "@/data/modules";
 import { useProgress, completedCount, allModulesCompleted } from "@/store/progress";
 import { cn } from "@/lib/utils";
 
-const FAQ = [
-  { q: "Для кого эта платформа?", a: "Для школьников 5–7 классов (подходит и младшим — переключи режим «Для младших классов» в шапке). Учителям и жюри доступна аналитика в разделе «Родителям» и на странице /dashboard." },
-  { q: "Как проходить модули?", a: "Открой любой модуль с этой страницы или с 3D-карты. Сначала короткая разминка из 3 вопросов, потом теория, тренажёр, интерактивный симулятор и итоговый квиз. Можно спрашивать ИИ-наставника голосом." },
-  { q: "Как получить сертификат?", a: "Пройди все 6 модулей (квиз на 70 % и выше), затем финальную миссию — её каждый раз заново сочиняет наставник. После этого откроется сертификат." },
-];
+const KazCyberMap = dynamic(() => import("@/components/hero/KazCyberMap").then((m) => m.KazCyberMap), {
+  ssr: false,
+  loading: () => <div className="glass aspect-[1180/686] w-full animate-pulse rounded-3xl" />,
+});
 
 export default function Home() {
   const modules = useProgress((s) => s.modules);
@@ -21,13 +20,26 @@ export default function Home() {
   const done = hydrated ? completedCount(modules) : 0;
   const pct = Math.round((done / MODULES.length) * 100);
   const allDone = hydrated && allModulesCompleted(modules);
+  // modules list is hidden until the player presses «Начать игру» / «Список модулей»
+  const [showModules, setShowModules] = useState(false);
+  const modulesRef = useRef<HTMLElement>(null);
+  const revealModules = useCallback(() => {
+    setShowModules(true);
+    setTimeout(() => modulesRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
+  }, []);
+  useEffect(() => {
+    // direct link /#modules (header nav) should open the list too
+    if (window.location.hash === "#modules") revealModules();
+    const onHash = () => { if (window.location.hash === "#modules") revealModules(); };
+    window.addEventListener("hashchange", onHash);
+    return () => window.removeEventListener("hashchange", onHash);
+  }, [revealModules]);
 
   return (
     <main>
       {/* HERO */}
       <section className="mx-auto flex max-w-7xl flex-col items-center gap-10 px-[5%] pb-16 pt-14 md:min-h-[calc(100vh-80px)] md:flex-row md:justify-between md:pt-20">
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="max-w-xl text-center md:text-left">
-          <span className="mb-6 inline-block rounded-pill border border-lilac/30 bg-lilac/10 px-5 py-2 text-sm font-semibold text-lilac">Кибербезопасность для 5–7 классов</span>
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="max-w-xl text-center md:max-w-[44%] md:text-left">
           <h1 className="text-4xl font-extrabold leading-tight md:text-5xl">
             Стань настоящим <span className="text-teal" style={{ textShadow: "0 0 20px var(--glow)" }}>КиберБатыром</span> интернета!
           </h1>
@@ -35,17 +47,27 @@ export default function Home() {
             Увлекательные миссии на 3D-островах: защита данных, распознавание фейков, безопасное общение в сети. ИИ-наставник, управление жестами и аналитика для учителя.
           </p>
           <div className="mt-10 flex flex-col justify-center gap-4 sm:flex-row md:justify-start">
-            <Link href="/map" className="btn-teal px-8 py-4 text-base">Начать игру 🚀</Link>
-            <a href="#modules" className="btn-soft px-8 py-4 text-base">Список модулей</a>
+            <button type="button" onClick={revealModules} className="btn-teal px-8 py-4 text-base">Начать игру 🚀</button>
+            <button type="button" onClick={revealModules} className="btn-soft px-8 py-4 text-base">Список модулей</button>
           </div>
         </motion.div>
-        <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.8 }} className="animate-float w-full max-w-md">
-          <Image src="/assets/mascot.png" alt="Маскот QALQAN AI" width={640} height={640} priority className="h-auto w-full rounded-3xl" style={{ filter: "drop-shadow(0 0 40px var(--glow))" }} />
+        <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.8 }} className="w-full max-w-2xl md:max-w-[52%]">
+          <KazCyberMap />
         </motion.div>
       </section>
 
       {/* MODULES */}
-      <section id="modules" className="mx-auto max-w-7xl px-[5%] py-16">
+      <AnimatePresence>
+      {showModules && (
+      <motion.section
+        id="modules"
+        ref={modulesRef}
+        initial={{ opacity: 0, y: 40 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.5 }}
+        className="mx-auto max-w-7xl scroll-mt-20 px-[5%] py-16"
+      >
         <div className="mb-10 flex flex-col items-start gap-5 md:flex-row md:items-end md:justify-between">
           <h2 className="text-3xl font-extrabold md:text-4xl">Твои миссии</h2>
           <div className="flex items-center gap-4 rounded-pill border border-line bg-card px-6 py-3">
@@ -80,7 +102,7 @@ export default function Home() {
           })}
 
           {/* final mission */}
-          <Link href={allDone ? "/final" : "#modules"} className={cn("glass flex h-full flex-col items-center justify-center rounded-3xl border-dashed p-8 text-center transition-all", allDone ? "border-sun/60 hover:-translate-y-2 hover:shadow-glow-sun" : "opacity-70")}>
+          <Link href={allDone ? "/final" : "#modules"} onClick={(e) => { if (!allDone) e.preventDefault(); }} className={cn("glass flex h-full flex-col items-center justify-center rounded-3xl border-dashed p-8 text-center transition-all", allDone ? "border-sun/60 hover:-translate-y-2 hover:shadow-glow-sun" : "opacity-70")}>
             <div className="text-5xl">{allDone ? "🏁" : "🔒"}</div>
             <h3 className="mt-4 font-sans text-lg font-semibold">Финальная миссия</h3>
             <p className="mt-1 text-sm text-fg3">{allDone ? (finalCompleted ? "Пройдена — можно ещё раз" : "Открыта! Сюжет сочинит наставник") : `Откроется после всех модулей (${done}/${MODULES.length})`}</p>
@@ -103,21 +125,10 @@ export default function Home() {
             </div>
           </div>
         </div>
-      </section>
+      </motion.section>
+      )}
+      </AnimatePresence>
 
-      {/* FAQ */}
-      <section id="faq" className="mx-auto max-w-3xl px-[5%] py-16">
-        <h2 className="mb-8 text-3xl font-extrabold md:text-4xl">Частые вопросы</h2>
-        <div className="flex flex-col gap-4">
-          {FAQ.map((f) => (
-            <div key={f.q} className="glass rounded-2xl p-5">
-              <h3 className="font-sans text-lg font-semibold text-teal">{f.q}</h3>
-              <p className="mt-2 text-fg2">{f.a}</p>
-            </div>
-          ))}
-        </div>
-        <p className="mt-10 text-center text-xs text-fg3">QALQAN AI · Next.js · React Three Fiber · MediaPipe · Gemini · Пилотная версия</p>
-      </section>
     </main>
   );
 }
