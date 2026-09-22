@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "prestart": "node -e \"require('fs').existsSync('.next/BUILD_ID')||process.exit(1)\" || npm run build",
     "start": "next start",
     "lint": "next lint"
   },

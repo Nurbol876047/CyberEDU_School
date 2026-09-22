@@ -72,3 +72,8 @@ public/             assets (маскот, иллюстрации), fonts (Rubik,
 
 Проект теперь серверный (Next.js + API-роут), поэтому на Render нужен **Web Service**, а не Static Site:
 build `npm ci && npm run build`, start `npm start`, переменная `GEMINI_API_KEY`. Конфигурация — в `render.yaml`.
+
+Если сервис создан вручную (не через Blueprint), `render.yaml` игнорируется — тогда в Dashboard → Settings → Build & Deploy
+обязательно укажите **Build Command** `npm ci && npm run build` и **Start Command** `npm start`.
+На случай пустого Build Command в `package.json` есть `prestart`: он собирает проект при старте, если сборки ещё нет
+(деплой пройдёт, но старт будет дольше на ~1–2 мин).
